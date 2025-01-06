@@ -97,6 +97,7 @@ export default function LoginPage() {
           className="h-[50px] w-full rounded-sm text-[1rem]"
           variant={"point"}
           disabled={email.length < 1 || pw.length < 8}
+          // review: async 아니어도 작동 되는 것 같은데 확인 필요
           onClick={async () =>
             LoginPostApi({
               setShowValidation,

@@ -26,7 +26,8 @@ export default function Search() {
     keyword: [],
   });
 
-  const fetchData = async (text) => {
+  // 전체적으로 useEffect, useCallback dependency를 수정해야 할 듯
+  const fetchData = async (text: string) => {
     console.log("fetchData 실행");
     try {
       if (text) {
@@ -34,7 +35,7 @@ export default function Search() {
           text,
           formattedRequestDate(checkInDate),
           formattedRequestDate(checkOutDate),
-          filterApply
+          filterApply,
         );
         if (array != "코코시 추천순" && data) {
           setSearchResultData(dataArray(data, array));
@@ -66,8 +67,8 @@ export default function Search() {
   }, [filterApply]);
 
   return (
-    <div className="flex h-screen w-full justify-center bg-gray-100 font-sans tracking-negative">
-      <div className="w-[360px] bg-white relative flex flex-col h-full px-[20px]">
+    <div className="tracking-negative flex h-screen w-full justify-center bg-gray-100 font-sans">
+      <div className="relative flex h-full w-[360px] flex-col bg-white px-[20px]">
         {onCalendar ? (
           <>
             <CalendarPage2 setOnCalendar={setOnCalendar} />

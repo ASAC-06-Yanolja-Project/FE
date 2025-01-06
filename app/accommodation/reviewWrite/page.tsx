@@ -60,13 +60,14 @@ const Review = () => {
         <p className={styles.ratingValue}>{rating.toFixed(1)}</p>
         <div className={styles.stars}>
           {[...Array(5)].map((_, i) => (
-            <span
+            // 클릭이 있는 요소는 가능하면 <button>으로 제작
+            <button
               key={i}
               className={`${styles.star} ${i < rating ? styles.filledStar : ""}`}
               onClick={() => handleRating(i + 1)}
             >
               ★
-            </span>
+            </button>
           ))}
         </div>
         <p className={styles.ratingInfo}>숙소에 대한 별점을 눌러주세요.</p>

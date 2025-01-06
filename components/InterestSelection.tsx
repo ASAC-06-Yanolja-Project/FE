@@ -1,7 +1,5 @@
 "use client";
-import { useState } from "react";
 import styles from "@/styles/interestSelection.module.css";
-import { useRouter } from "next/navigation";
 import { useInterest } from "@/feature/useInterest";
 
 const InterestSelection = () => {
@@ -21,7 +19,7 @@ const InterestSelection = () => {
 
       <div className={styles.grid}>
         {interests.map((interest) => (
-          <div
+          <button
             key={interest.id}
             className={`${styles.card} ${
               selectedInterest.includes(interest.name) ? styles.active : ""
@@ -30,7 +28,7 @@ const InterestSelection = () => {
           >
             <span className={styles.icon}>{interest.icon}</span>
             <span className={styles.label}>{interest.name}</span>
-          </div>
+          </button>
         ))}
       </div>
 

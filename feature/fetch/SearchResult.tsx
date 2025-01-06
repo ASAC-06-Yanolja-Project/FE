@@ -2,7 +2,7 @@ export default async function getSearchResult(
   searchKeyword,
   checkInDate,
   checkOutDate,
-  filterApply
+  filterApply,
 ) {
   console.log(
     "keyword : ",
@@ -18,17 +18,18 @@ export default async function getSearchResult(
     "\nmaxPrice : ",
     filterApply.priceRange[1],
     "\nkeyword : ",
-    filterApply.keyword
+    filterApply.keyword,
   );
   try {
     const response = await fetch(
+      // review: query parameter util 함수 하나 있으면 좋을듯
       `http://localhost:8080/api/accommodation/searchResult/${searchKeyword}?checkInDate=${checkInDate}&checkOutDate=${checkOutDate}&accommodationCategory=${filterApply.accommodationCategory}&minPrice=${filterApply.priceRange[0]}&maxPrice=${filterApply.priceRange[1]}&keyword=${filterApply.keyword}`,
       {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
         },
-      }
+      },
     );
     const data = await response.json();
 

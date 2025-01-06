@@ -2,7 +2,13 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-const interests = [
+interface Interest {
+  id: number;
+  name: string;
+  icon: string;
+}
+
+const interests: Interest[] = [
   { id: 1, name: "호캉스", icon: "🏨" },
   { id: 2, name: "풀빌라", icon: "🏠" },
   { id: 3, name: "게스트하우스", icon: "🏘️" },
@@ -14,9 +20,11 @@ const interests = [
 
 export const useInterest = () => {
   const router = useRouter();
-  const [selectedInterest, setSelectedInterest] = useState([]);
+  const [selectedInterest, setSelectedInterest] = useState<Interest["name"][]>(
+    [],
+  );
 
-  const handleSelect = (interest) => {
+  const handleSelect = (interest: Interest["name"]) => {
     if (selectedInterest.includes(interest)) {
       // 이미 선택된 항목이면 제거
       setSelectedInterest(selectedInterest.filter((item) => item !== interest));
@@ -38,7 +46,7 @@ export const useInterest = () => {
     }
     console.log("선택된 관심사:", selectedInterest);
     router.push("/users/signup/nickname");
-    localStorage.setItem("userInterest", selectedInterest);
+    localStorage.setItem("userInterest", JSON.stringify(selectedInterest));
   };
   return {
     interests,

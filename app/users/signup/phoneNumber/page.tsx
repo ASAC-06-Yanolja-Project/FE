@@ -9,6 +9,7 @@ import barImage from "@/assets/barImage.png";
 import checkImage from "@/assets/checkImage.png";
 import { formatTimer } from "@/feature/FormatText";
 import CustomFetch from "@/feature/CustomFetch";
+import { ChangeEvent } from "react";
 
 export default function FindId() {
   const [certification, setCertification] = useState(true);
@@ -20,7 +21,7 @@ export default function FindId() {
   const [verificationCode, setVerificationCode] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
-  const modalBackground = useRef();
+  const modalBackground = useRef<HTMLButtonElement>(null);
   const [carrierText, setCarrierText] = useState("통신사");
   const [selectedCarrier, setSelectedCarrier] = useState("");
   const [sendButtonText, setSendButtonText] = useState("인증받기");
@@ -33,11 +34,14 @@ export default function FindId() {
 
   const router = useRouter();
 
-  const pageRouter = (url) => {
+  const pageRouter = (url: string) => {
     router.push(url);
   };
 
-  const handleInputChange = (e, type) => {
+  const handleInputChange = (
+    e: ChangeEvent<HTMLInputElement>,
+    type: string,
+  ) => {
     let inputText = e.currentTarget.value;
     if (type === "name") {
       // inputText = inputText.replace(/[^가-힣ㄱ-ㅎㅏ-ㅣ]/g, "");
@@ -82,7 +86,7 @@ export default function FindId() {
     return () => clearInterval(interval);
   }, [isTimerActive]);
 
-  const handleSelectCarrier = (carrier) => {
+  const handleSelectCarrier = (carrier: string) => {
     setCertification(true);
     setSelectedCarrier(carrier);
   };
@@ -100,7 +104,7 @@ export default function FindId() {
         user_name: name,
         carrier: carrierText,
         user_phone: phone.replace(/-/g, ""),
-      }
+      },
     );
 
     const data = await response.json();
@@ -109,7 +113,7 @@ export default function FindId() {
       setMessage(
         sendButtonText === "인증받기"
           ? "인증번호가 전송 되었습니다."
-          : "인증번호가 재전송되었습니다."
+          : "인증번호가 재전송되었습니다.",
       );
 
       setSendButtonText("재전송");
@@ -129,7 +133,7 @@ export default function FindId() {
         carrier: carrierText,
         user_phone: phone.replace(/-/g, ""),
         code: verificationCode,
-      }
+      },
     );
 
     const data = await response.json();
@@ -204,7 +208,7 @@ export default function FindId() {
           </button>
         </div>
         {modalOpen && (
-          <div
+          <button
             className={modal["modal-container"]}
             ref={modalBackground}
             onClick={(e) => {
@@ -244,7 +248,7 @@ export default function FindId() {
                 ))}
               </div>
             </div>
-          </div>
+          </button>
         )}
         {!certification && (
           <div className="fixed bottom-10 ml-5 flex h-[42px] w-[320px] items-center justify-center rounded-md bg-gray-800 p-4 text-xs text-white opacity-70">

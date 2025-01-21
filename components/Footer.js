@@ -35,22 +35,22 @@ const Footer = () => {
         </Link>
 
         {/* 홈 */}
-        <Link href="/yanolza/main">
+        <Link href="/main">
           <div
             className={`${styles.navItem} ${
-              pathname === "/yanolza/main" ? styles.active : ""
+              pathname === "/main" ? styles.active : ""
             }`}
           >
             <img
               src={goHome.src}
               alt="홈"
               className={`${styles.icon} ${
-                pathname === "/yanolza/main" ? styles.activeIcon : ""
+                pathname === "/main" ? styles.activeIcon : ""
               }`}
             />
             <span
               className={`${
-                pathname === "/yanolza/main" ? styles.activeText : ""
+                pathname === "/main" ? styles.activeText : ""
               }`}
             >
               홈

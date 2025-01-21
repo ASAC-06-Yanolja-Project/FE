@@ -31,7 +31,8 @@ export default function LoginPostApi({
           );
           localStorage.setItem("userEmail", response.data.data.userEmail);
 
-          router.push("/yanolza/main");
+          // router.push("/yanolza/main");
+          router.push("/main");
         } else if (
           response.data.status === false &&
           response.data.message.includes("회원")

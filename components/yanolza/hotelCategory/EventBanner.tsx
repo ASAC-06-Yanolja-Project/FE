@@ -22,27 +22,28 @@ export default function EventBanner() {
           autoplay={true}
         >
           <SwiperSlide>
-            <button onClick={() => router.push("/yanolza/event")}>
+            {/* <button onClick={() => router.push("/yanolza/event")}> */}
+            <button onClick={() => router.push("/event")}>
               <img src={hotel_banner.src} alt="Banner 1" />
             </button>
           </SwiperSlide>
           <SwiperSlide>
-            <button onClick={() => router.push("/yanolza/event")}>
+            <button onClick={() => router.push("/event")}>
               <img src={hotel_banner.src} alt="Banner 2" />
             </button>
           </SwiperSlide>
           <SwiperSlide>
-            <button onClick={() => router.push("/yanolza/event")}>
+            <button onClick={() => router.push("/event")}>
               <img src={hotel_banner.src} alt="Banner 3" />
             </button>
           </SwiperSlide>
           <SwiperSlide>
-            <button onClick={() => router.push("/yanolza/event")}>
+            <button onClick={() => router.push("/event")}>
               <img src={hotel_banner.src} alt="Banner 4" />
             </button>
           </SwiperSlide>
           <SwiperSlide>
-            <button onClick={() => router.push("/yanolza/event")}>
+            <button onClick={() => router.push("/event")}>
               <img src={hotel_banner.src} alt="Banner 5" />
             </button>
           </SwiperSlide>

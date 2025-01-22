@@ -1,7 +1,6 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 const baseUrl = process.env.NEXT_PUBLIC_SERVER_BASE_URL;
-
 const baseQuery = fetchBaseQuery({
   baseUrl,
   prepareHeaders: (headers) => {

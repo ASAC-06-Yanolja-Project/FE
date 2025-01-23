@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import {
   calculateDaysDifference,
-  getDayOfWeekForString,
+  formattedYearToDayNotDayOfWeek,
 } from "@/feature/DateFormat";
 import { useEffect, useState } from "react";
 import { PaymentFetch } from "@/feature/payment/PaymentFetch";
@@ -31,7 +31,6 @@ export default function ReservationPayment() {
       if (reservationNumber != null) {
         console.log(reservationNumber);
         const response = await PaymentFetch({ reservationNumber });
-        console.log("response : ", response);
         setPaymentResponse(response);
       }
     };
@@ -39,10 +38,7 @@ export default function ReservationPayment() {
   }, []);
 
   useEffect(() => {
-    // paymentResponse가 유효할 때만 처리
-    if (paymentResponse) {
-      console.log("Payment response updated:", paymentResponse);
-    }
+    console.log(paymentResponse);
   }, [paymentResponse]);
 
   return (
@@ -53,11 +49,11 @@ export default function ReservationPayment() {
           <div className="mb-[16px] mt-[26px]">
             <span className="text-[14px] font-bold">상품 정보</span>
           </div>
-          {paymentResponse?.paymentProducts.map((reservationRoom, index) => {
+          {paymentResponse?.paymentRooms.map((reservationRoom, index) => {
             return (
               <div key={reservationRoom.roomName}>
                 <ReservationRoomList reservationRoom={reservationRoom} />
-                {index !== paymentResponse.paymentProducts.length - 1 && (
+                {index !== paymentResponse.paymentRooms.length - 1 && (
                   <hr className="my-[18px]" />
                 )}
               </div>
@@ -73,7 +69,7 @@ export default function ReservationPayment() {
                 <div className="flex gap-[30px]">
                   <span>결제 수단</span>
                   <span className="text-[#666666]">
-                    {paymentResponse.paymentMethod}
+                    {paymentResponse.accommodationCategory}
                   </span>
                 </div>
                 <div className="flex gap-[30px]">
@@ -140,13 +136,11 @@ const ReservationRoomList = ({ reservationRoom }) => {
               </div>
               <div className="mb-px flex h-[19px] items-center">
                 <span className="text-[12px] font-bold">
-                  {`${reservationRoom.reservationRoomStartDate} ${getDayOfWeekForString(reservationRoom.reservationRoomStartDate)}
-                  ~ ${reservationRoom.reservationRoomEndDate} ${getDayOfWeekForString(reservationRoom.reservationRoomEndDate)}
-                  , ${calculateDaysDifference(reservationRoom.reservationRoomStartDate, reservationRoom.reservationRoomEndDate)}박`}
+                  {`${formattedYearToDayNotDayOfWeek(reservationRoom.reservationRoomStartDate, reservationRoom.reservationRoomEndDate)}, ${calculateDaysDifference(reservationRoom.reservationRoomStartDate, reservationRoom.reservationRoomEndDate)}박`}
                 </span>
               </div>
               <div className="flex h-[19px] items-center">
-                <span className="text-[12px] font-bold text-[#7F7F7F]">{`${reservationRoom.roomName} (기준 ${reservationRoom.reservationRoomCapacity}명/최대 ${reservationRoom.reservationRoomMaxCapacity}명)`}</span>
+                <span className="text-[12px] font-bold text-[#7F7F7F]">{`${reservationRoom.roomName} (기준 ${reservationRoom.roomCapacity}/최대 ${reservationRoom.roomMaxCapacity})`}</span>
               </div>
             </div>
           </div>

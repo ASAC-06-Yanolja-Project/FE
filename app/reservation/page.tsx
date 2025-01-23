@@ -4,35 +4,56 @@ import MainHeaders from "@/components/MainHeaders";
 import { KakaoPayReady } from "@/feature/fetch/KakaoPayFetch";
 import Image from "next/image";
 import { useState, useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import blackBackIcon from "@/assets/blckBackIcon.png";
-import { reservationApi } from "@/feature/reservation/api/api";
-import {
-  requestReservation,
-  roomInfoForReserve,
-} from "@/feature/reservation/type/reservation.type";
-import { userApi } from "@/feature/users/api/api";
-import {
-  calculateTimeDifference,
-  getDayOfWeekForString,
-  getDiffDays,
-} from "@/feature/DateFormat";
 
 export default function Reservation() {
-  const [name, setName] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
-
+  const data = [
+    {
+      id: 1,
+      image: "/hotel1.png",
+      accommodationCategory: "호텔",
+      name: "서울 호텔",
+      roomName: "디럭스 트윈",
+      roomMin: "기준 2명",
+      roomMax: "최대 2명",
+      checkInDate: "2023.06.14(화)",
+      checkOutDate: "2023.06.14(수)",
+      checkInTIme: "16:00",
+      checkOutTime: "12:00",
+      price: "50,000원",
+      quantity: 1,
+    },
+    {
+      id: 2,
+      image: "/hotel1.png",
+      accommodationCategory: "호텔",
+      name: "서울 호텔",
+      roomName: "디럭스 트윈",
+      roomMin: "기준 2명",
+      roomMax: "최대 2명",
+      checkInDate: "2023.06.14(화)",
+      checkOutDate: "2023.06.14(수)",
+      checkInTIme: "16:00",
+      checkOutTime: "12:00",
+      price: "50,000원",
+      quantity: 1,
+    },
+  ];
+  const user = { userName: "유성환", userPhoneNumber: "010-2295-2483" };
   const [onReservationPerson, setOnReservationPerson] = useState(false);
-
+  const [name, setName] = useState(user.userName);
+  const [phoneNumber, setPhoneNumber] = useState(user.userPhoneNumber);
   const [paymentType, setPaymentType] = useState("");
   const [totaltTerms, setTotalTerms] = useState(false);
   const [isPayment, setIsPayment] = useState(false);
 
-  const [productRadio, setProductRadio] = useState({});
-
-  const [requestReservation, setRequestReservation] = useState<
-    requestReservation[]
-  >([]);
+  const [productRadio, setProductRadio] = useState(
+    data.reduce((acc, item) => {
+      acc[item.id] = { walkRadio: false, vehicleRadio: false };
+      return acc;
+    }, {})
+  );
   const router = useRouter();
   const searchParams = useSearchParams();
   const queryString: string = searchParams.get("data");
@@ -71,14 +92,57 @@ export default function Reservation() {
     });
   };
 
+  const handleRadioChange = (id, type) => {
+    setProductRadio((prev) => {
+      const updatedProductRadio = { ...prev };
+      if (type === "walkRadio") {
+        updatedProductRadio[id] = { walkRadio: true, vehicleRadio: false };
+      } else {
+        updatedProductRadio[id] = { walkRadio: false, vehicleRadio: true };
+      }
+      return updatedProductRadio;
+    });
+  };
+
   const handleReservationPerson = () => {
     setOnReservationPerson((prev) => !prev);
   };
 
   useEffect(() => {
-    if (userData) {
-      setName(userData.data.name);
-      setPhoneNumber(userData.data.phone);
+    if (
+      Object.values(productRadio).every(
+        (radio) => radio.walkRadio || radio.vehicleRadio
+      ) &&
+      name &&
+      phoneNumber &&
+      paymentType &&
+      totaltTerms
+    ) {
+      setIsPayment(true);
+    } else {
+      setIsPayment(false);
+    }
+  }, [name, phoneNumber, totaltTerms, paymentType, productRadio]);
+
+  const handlePayment = async () => {
+    if (isPayment) {
+      const requestBody = {
+        quantity: data.reduce((sum, item) => sum + item.quantity, 0),
+        totalAmount: 200000,
+        userId: 1,
+        roomId: 1,
+        // reservationNumber: "1234",
+      };
+      console.log(paymentType);
+      if (paymentType === "kakaoPay") {
+        const response = await KakaoPayReady({ requestBody });
+
+        if (response?.next_redirect_pc_url) {
+          router.push(response.next_redirect_pc_url);
+        } else {
+          console.error("결제 요청 실패", response);
+        }
+      } else alert("준비중입니다.");
     }
   }, [userData]);
 
@@ -169,21 +233,21 @@ export default function Reservation() {
         ) : (
           <>
             <div className="mt-[15px] tracking-[-0.8px]">
-              {requestReservation?.length > 0 &&
-                requestReservation.map((item, index) => (
-                  <div key={index}>
+              {data?.length > 0 &&
+                data.map((item, index) => (
+                  <div key={item.id}>
                     <ProductList
                       data={item}
-                      walkRadio={productRadio[item.roomId]?.walkRadio}
+                      walkRadio={productRadio[item.id]?.walkRadio}
                       setWalkRadio={() =>
-                        handleRadioChange(item.roomId, "walkRadio")
+                        handleRadioChange(item.id, "walkRadio")
                       }
-                      vehicleRadio={productRadio[item.roomId]?.vehicleRadio}
+                      vehicleRadio={productRadio[item.id]?.vehicleRadio}
                       setVehicleRadio={() =>
-                        handleRadioChange(item.roomId, "vehicleRadio")
+                        handleRadioChange(item.id, "vehicleRadio")
                       }
                     />
-                    {index < requestReservation.length - 1 && (
+                    {index < data.length - 1 && (
                       <hr className="my-[20px] w-[320px]" />
                     )}
                   </div>
@@ -207,7 +271,7 @@ export default function Reservation() {
             />
             <Notification />
             <PaymentButton
-              handlePayment={handleReserve}
+              handlePayment={handlePayment}
               isPayment={isPayment}
             />
           </>
@@ -224,8 +288,6 @@ const ProductList = ({
   vehicleRadio,
   setVehicleRadio,
 }) => {
-  const [roomInfo, setRoomInfo] = useState<roomInfoForReserve>();
-
   const handleWalkRadio = () => {
     setWalkRadio((prev) => !prev);
   };

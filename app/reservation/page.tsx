@@ -40,7 +40,7 @@ export default function Reservation() {
       quantity: 1,
     },
   ];
-  const user = { userName: "유성환", userPhoneNumber: "010-2295-2483" };
+  const user = { userName: "유성환", userPhoneNumber: "010-2295-2483" }; // 요청 보내고 받아서 띄우기
   const [onReservationPerson, setOnReservationPerson] = useState(false);
   const [name, setName] = useState(user.userName);
   const [phoneNumber, setPhoneNumber] = useState(user.userPhoneNumber);

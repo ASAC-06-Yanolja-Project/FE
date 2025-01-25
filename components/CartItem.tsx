@@ -10,7 +10,7 @@ interface CartItemProps {
   maxCapacity: number;
   checkIn: string;
   checkOut: string;
-  specialPrice?: number;
+  // specialPrice?: number;
   stock: number;
   price: number;
   isChecked: boolean;
@@ -27,7 +27,7 @@ const CartItem: React.FC<CartItemProps> = ({
   maxCapacity,
   checkIn,
   checkOut,
-  specialPrice,
+  // specialPrice,
   stock,
   price,
   isChecked,
@@ -103,7 +103,7 @@ const CartItem: React.FC<CartItemProps> = ({
               </div>
             </div>
             <div className="mt-3 flex flex-col items-end">
-              {specialPrice && (
+              {/* {specialPrice && (
                 // <span className="mb-1 bg-purple-300 text-xs text-purple-600 px-[5px]">
                 //   선착순 {specialPrice.toLocaleString()}원 특가
                 // </span>
@@ -112,7 +112,7 @@ const CartItem: React.FC<CartItemProps> = ({
                     선착순 {specialPrice.toLocaleString()}원 특가
                   </span>
                 </div>
-              )}
+              )} */}
               <div className="flex items-end gap-[10px]">
                 <span className="pb-[3px] text-xs text-[#8728FF]">
                   {stock}개 남음

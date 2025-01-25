@@ -11,6 +11,8 @@ import MainHeaders from "@/components/MainHeaders";
 
 interface CartItemData {
   id: number;
+  cartId: number;
+  thumbnail: string;
   type: string;
   name: string;
   reservationStart: string; // 예약 시작 날짜 (백엔드 Date 형식)
@@ -22,10 +24,13 @@ interface CartItemData {
   specialPrice?: number; // 숫자 형식의 특가 금액
   stock: number; // 재고 수량
   price: number; // 가격
+  resvervationType: string;
   isChecked: boolean; // 체크 여부
 }
 
 export default function CartPage() {
+  console.log("CartPage 렌더링 시작"); // 페이지 렌더링 여부 확인
+
   const [cartId, setCartId] = useState<number | null>(null); // 카트 ID 저장
   const [cartItems, setCartItems] = useState<CartItemData[]>([]); // 초기 데이터 비움
   const [loading, setLoading] = useState<boolean>(true); // 로딩 상태
@@ -73,9 +78,10 @@ export default function CartPage() {
               maxCapacity: item.maxCapacity,
               checkIn: item.checkIn,
               checkOut: item.checkOut,
-              specialPrice: item.specialPrice,
+              // specialPrice: item.specialPrice,
               stock: item.stock,
               price: item.price,
+              reservationType: item.reservationType,
               isChecked: item.checked,
             })
           );
@@ -84,7 +90,7 @@ export default function CartPage() {
           setLoading(false);
         }
       } catch (error: any) {
-        setError("데이터를 불러오는 중 오류가 발생했습니다.");
+        setError("데이터를 불러오는 중 오류가 발생했습니다.", error);
         setLoading(false);
       }
     };
@@ -101,6 +107,10 @@ export default function CartPage() {
         item.id === id ? { ...item, isChecked: !item.isChecked } : item
       )
     );
+    setSelectedItemIds((prev) =>
+      prev.includes(id) ? prev.filter((itemId) => itemId !== id) : [...prev, id]
+    );
+    console.log("선택된 아이템 IDs:", selectedItemIds);
   };
 
   const isAllChecked = cartItems.every((item) => item.isChecked);
@@ -115,6 +125,8 @@ export default function CartPage() {
     const idsToDelete = cartItems
       .filter((item) => item.isChecked)
       .map((item) => item.id);
+
+    console.log(idsToDelete.toString);
     setSelectedItemIds(idsToDelete);
     setIsModalOpen(true); // 모달 열기
   };
@@ -154,6 +166,48 @@ export default function CartPage() {
     setIsModalOpen(false); // 모달 닫기
   };
 
+  // 예약하기 페이지로 선택된 카트 아이템 넘기는 함수
+  const handleNavigateToReservation = () => {
+    console.log("[예약하기 버튼 클릭] - handleNavigateToReservation 실행");
+    // 선택된 아이템 필터링
+    const selectedItems = cartItems.filter((item) => item.isChecked);
+
+    // 선택된 아이템 ID를 상태로 업데이트
+    const selectedIds = selectedItems.map((item) => item.id);
+    setSelectedItemIds(selectedIds);
+    console.log("선택된 아이템:", selectedItems);
+    console.log("선택된 아이템 IDs:", selectedItemIds);
+
+    if (selectedItems.length === 0) {
+      alert("선택된 아이템이 없습니다.");
+      return;
+    }
+
+    // 선택된 아이템 데이터 가공
+    const formattedData = selectedItems.map((item) => ({
+      roomId: item.id,
+      cartId: cartId || undefined,
+      capacity: item.capacity,
+      startDate: item.reservationStart,
+      endDate: item.reservationEnd,
+      startTime: item.checkIn.substring(0, 5),
+      endTime: item.checkOut.substring(0, 5),
+      reservationType: item.reservationType, // 예약 타입 예시
+    }));
+
+    // 데이터를 쿼리스트링으로 변환
+    const query = encodeURIComponent(JSON.stringify(formattedData));
+
+    // reservation 페이지로 이동
+    router.push(`/reservation?data=${query}`);
+  };
+
+  const getDayOfWeek = (dateString: string): string => {
+    const days = ["일", "월", "화", "수", "목", "금", "토"];
+    const date = new Date(dateString);
+    return days[date.getDay()];
+  };
+
   const totalAmount = cartItems
     .filter((item) => item.isChecked)
     .reduce((sum, item) => sum + item.price, 0);
@@ -164,30 +218,14 @@ export default function CartPage() {
 
   const expectedAmount = totalAmount - totalDiscount;
 
-  const handleReserve = () => {
-    const reservedItems = cartItems.filter((item) => item.isChecked); // 선택된 아이템만
-    if (reservedItems.length === 0) {
-      alert("예약할 아이템을 선택해주세요.");
-      return;
-    }
-    const reservedItemsString = encodeURIComponent(
-      JSON.stringify(reservedItems)
-    );
-
-    // 페이지 이동 시 쿼리 문자열에 데이터 포함
-    //router.push(`/reservation?reservedItems=${reservedItemsString}`);
-
-    // router.push("/users/signup/gender");
-  };
-
   const title = "장바구니";
 
   if (loading) return <div>로딩 중...</div>;
   if (error) return <div>{error}</div>;
 
   return (
-    <div className="flex flex-col items-center w-full bg-gray-100">
-      <div className="w-[360px] bg-white px-4">
+    <div className="flex w-full flex-col items-center bg-gray-100">
+      <div className="w-[360px] bg-white px-5">
         <MainHeaders title={title} backIcon={true} homeIcon={true} />
         <TopBar
           allChecked={isAllChecked}
@@ -196,8 +234,11 @@ export default function CartPage() {
         />
         <div>
           {cartItems.length > 0 ? (
-            cartItems.map((item) => (
-              <CartItem key={item.id} {...item} onCheck={toggleItemCheck} />
+            cartItems.map((item, index) => (
+              <>
+                <CartItem key={item.id} {...item} onCheck={toggleItemCheck} />
+                {index < cartItems.length - 1 && <hr />}
+              </>
             ))
           ) : (
             <p className="text-center text-gray-500">
@@ -205,32 +246,33 @@ export default function CartPage() {
             </p>
           )}
         </div>
-        <div className="py-4 border-t-2 border-gray-300">
-          <h2 className="text-sm font-semibold text-gray-900 mb-2">
+        <hr className="w-[360px] ml-[-20px] border-[3.5px]"></hr>
+        <div className="py-4 flex flex-col gap-[20px]">
+          <h2 className="text-sm font-semibold text-gray-900 mb-[5px]">
             할인 및 결제 정보
           </h2>
-          <div className="flex justify-between text-sm text-gray-600 mb-2">
+          <div className="flex justify-between text-sm text-gray-600">
             <span>결제 금액</span>
             <span className="font-semibold text-gray-900">
               {totalAmount.toLocaleString()}원
             </span>
           </div>
-          <div className="flex justify-between text-sm text-gray-600 mb-2">
+          <div className="flex justify-between text-sm text-gray-600">
             <span>할인 금액</span>
             <span className="font-semibold text-red-500">
               {totalDiscount.toLocaleString()}원
             </span>
           </div>
-          <div className="w-full h-[1px] bg-gray-200 my-2"></div>
-          <div className="flex justify-between text-sm text-gray-600 mb-4">
+          <div className=" h-px w-full bg-gray-200"></div>
+          <div className=" flex justify-between text-sm text-gray-600">
             <span>결제 예상 금액</span>
             <span className="font-semibold text-gray-900">
               {expectedAmount.toLocaleString()}원
             </span>
           </div>
         </div>
-        <div className="py-4 border-t border-gray-200">
-          <div className="flex justify-between items-center mb-4">
+        <div className="border-t border-gray-200 py-4">
+          <div className="mb-4 flex items-center justify-between">
             <span className="text-sm text-gray-600">
               총 {cartItems.length}건
             </span>
@@ -241,7 +283,10 @@ export default function CartPage() {
               </span>
             </div>
           </div>
-          <CustomButton isActive={totalAmount > 0} onClick={handleReserve}>
+          <CustomButton
+            isActive={totalAmount > 0}
+            onClick={handleNavigateToReservation /*handleReserve*/}
+          >
             예약하기
           </CustomButton>
         </div>
